@@ -1,0 +1,327 @@
+<!DOCTYPE html>
+<html lang="ru">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Форма обратной связи</title>
+    <style>
+        body {
+            font-family: Arial, sans-serif;
+            max-width: 600px;
+            margin: 0 auto;
+            padding: 20px;
+        }
+        .form-group {
+            margin-bottom: 15px;
+        }
+        label {
+            display: block;
+            margin-bottom: 5px;
+            font-weight: bold;
+        }
+        .required:after {
+            content: " *";
+            color: red;
+        }
+        select,
+        textarea,
+        input[type="text"],
+        input[type="email"],
+        input[type="tel"],
+        input[type="file"] {
+            width: 100%;
+            padding: 8px;
+            border: 1px solid #ddd;
+            border-radius: 4px;
+        }
+        .example {
+            font-size: 0.8em;
+            color: #666;
+            margin-top: 5px;
+        }
+        button {
+            padding: 10px 15px;
+            background-color: #4CAF50;
+            color: white;
+            border: none;
+            border-radius: 4px;
+            cursor: pointer;
+        }
+        button:hover {
+            background-color: #45a049;
+        }
+        .error {
+            color: red;
+            font-size: 0.9em;
+            margin-top: 5px;
+        }
+        .invalid {
+            border-color: red !important;
+        }
+        .error-message {
+            color: red;
+            font-size: 0.8em;
+            margin-top: 3px;
+        }
+        .hidden {
+            display: none;
+        }
+        .server-error {
+            color: red;
+            margin-bottom: 20px;
+            border: 1px solid red;
+            padding: 10px;
+        }
+    </style>
+</head>
+<body>
+    <h1>Форма обратной связи</h1>
+    <div id="serverError" class="server-error hidden"></div>
+    <form id="feedbackForm" action="/feedback/submit" method="post" enctype="multipart/form-data" novalidate>
+        <!-- Тип обращения -->
+        <div class="form-group">
+            <label for="feedback_type" class="required">Тип обращения:</label>
+            <select id="feedback_type" name="feedback_type" required>
+                {% for type in feedback_types %}
+                <option value="{{ type.value }}">{{ type.label }}</option>
+                {% endfor %}
+            </select>
+            <div id="feedback_type_error" class="error-message hidden">
+                Пожалуйста, выберите тип обращения
+            </div>
+        </div>
+        
+        <!-- ФИО -->
+        <div class="form-group">
+            <label for="full_name" class="required">ФИО:</label>
+            <input type="text" id="full_name" name="full_name" required 
+                   minlength="2" maxlength="100"
+                   placeholder="{{ example_data.full_name }}">
+            <div id="full_name_error" class="error-message hidden">
+                ФИО должно быть от 2 до 100 символов
+            </div>
+            <div class="example">Пример: {{ example_data.full_name }}</div>
+        </div>
+        
+        <!-- Email -->
+        <div class="form-group">
+            <label for="email" class="required">Email:</label>
+            <input type="email" id="email" name="email" required
+                   placeholder="{{ example_data.email }}">
+            <div id="email_error" class="error-message hidden">
+                Введите корректный email
+            </div>
+            <div class="example">Пример: {{ example_data.email }}</div>
+        </div>
+        
+        <!-- Телефон -->
+        <div class="form-group">
+            <label for="phone">Телефон:</label>
+            <input type="tel" id="phone" name="phone" 
+                   pattern="^\+?[\d\s\-()]{5,20}$" maxlength="20"
+                   placeholder="{{ example_data.phone }}">
+            <div id="phone_error" class="error-message hidden">
+                Формат: +7 999 123-45-67 (от 5 до 20 символов)
+            </div>
+            <div class="example">Пример: {{ example_data.phone }}</div>
+        </div>
+        
+        <!-- Сообщение -->
+        <div class="form-group">
+            <label for="message" class="required">Сообщение:</label>
+            <textarea id="message" name="message" rows="5" required
+                      minlength="10" maxlength="1000"
+                      placeholder="{{ example_data.message }}"></textarea>
+            <div id="message_error" class="error-message hidden">
+                Сообщение должно быть от 10 до 1000 символов
+            </div>
+            <div class="example">Осталось: <span id="charsLeft">1000</span> символов</div>
+        </div>
+        
+        <!-- Файл -->
+        <div class="form-group">
+            <label for="file">Прикрепить файл:</label>
+            <input type="file" id="file" name="file" accept=".jpg,.jpeg,.png,.pdf">
+            <div id="file_error" class="error-message hidden">
+                Макс. размер 5MB. Разрешены: JPG, PNG, PDF
+            </div>
+            <div class="example">Максимальный размер: 5MB</div>
+        </div>
+        
+        <button type="submit">Отправить</button>
+    </form>
+
+    <script>
+        // Список допустимых типов обращений
+        const validFeedbackTypes = [
+            {% for type in feedback_types %}
+            "{{ type.value }}",
+            {% endfor %}
+        ];
+
+        // Функция для экранирования HTML
+        function escapeHtml(unsafe) {
+            return unsafe
+                .replace(/&/g, "&amp;")
+                .replace(/</g, "&lt;")
+                .replace(/>/g, "&gt;")
+                .replace(/"/g, "&quot;")
+                .replace(/'/g, "&#039;");
+        }
+
+        // Функция для валидации телефона
+        function validatePhone(phone) {
+            const phoneRegex = /^\+?[\d\s\-()]{5,20}$/;
+            if (!phone) return true;
+            
+            // Удаляем все нецифровые символы, кроме + в начале
+            const cleaned = phone.replace(/[^\d+]/g, '');
+            return phoneRegex.test(phone) && cleaned.length >= 5 && cleaned.length <= 15;
+        }
+
+        // Подсчёт символов в сообщении
+        document.getElementById('message').addEventListener('input', function() {
+            const remaining = 1000 - this.value.length;
+            document.getElementById('charsLeft').textContent = remaining;
+        });
+
+        // Валидация формы перед отправкой
+        document.getElementById('feedbackForm').addEventListener('submit', function(event) {
+            event.preventDefault();
+            let isValid = true;
+            const serverError = document.getElementById('serverError');
+            serverError.classList.add('hidden');
+            
+            // Экранирование всех вводимых данных
+            const formData = new FormData();
+            const feedbackType = document.getElementById('feedback_type').value;
+            const fullName = escapeHtml(document.getElementById('full_name').value.trim());
+            const email = escapeHtml(document.getElementById('email').value.trim());
+            const phone = escapeHtml(document.getElementById('phone').value.trim());
+            const message = escapeHtml(document.getElementById('message').value.trim());
+            const fileInput = document.getElementById('file');
+            
+            // Проверка типа обращения
+            if (!validFeedbackTypes.includes(feedbackType)) {
+                document.getElementById('feedback_type').classList.add('invalid');
+                document.getElementById('feedback_type_error').classList.remove('hidden');
+                isValid = false;
+            } else {
+                formData.append('feedback_type', feedbackType);
+            }
+            
+            // Проверка ФИО
+            if (fullName.length < 2 || fullName.length > 100) {
+                document.getElementById('full_name').classList.add('invalid');
+                document.getElementById('full_name_error').classList.remove('hidden');
+                isValid = false;
+            } else {
+                formData.append('full_name', fullName);
+            }
+            
+            // Проверка email
+            const emailRegex = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
+            if (!emailRegex.test(email)) {
+                document.getElementById('email').classList.add('invalid');
+                document.getElementById('email_error').classList.remove('hidden');
+                isValid = false;
+            } else {
+                formData.append('email', email);
+            }
+            
+            // Проверка телефона
+            if (!validatePhone(phone)) {
+                document.getElementById('phone').classList.add('invalid');
+                document.getElementById('phone_error').classList.remove('hidden');
+                isValid = false;
+            } else if (phone) {
+                formData.append('phone', phone);
+            }
+            
+            // Проверка сообщения
+            if (message.length < 10 || message.length > 1000) {
+                document.getElementById('message').classList.add('invalid');
+                document.getElementById('message_error').classList.remove('hidden');
+                isValid = false;
+            } else {
+                formData.append('message', message);
+            }
+            
+            // Проверка файла
+            if (fileInput.files.length > 0) {
+                const file = fileInput.files[0];
+                const validTypes = ['image/jpeg', 'image/png', 'application/pdf'];
+                
+                if (file.size > 5 * 1024 * 1024) {
+                    fileInput.classList.add('invalid');
+                    document.getElementById('file_error').textContent = 
+                        'Файл слишком большой. Максимальный размер: 5MB';
+                    document.getElementById('file_error').classList.remove('hidden');
+                    isValid = false;
+                } else if (!validTypes.includes(file.type)) {
+                    fileInput.classList.add('invalid');
+                    document.getElementById('file_error').textContent = 
+                        'Неподдерживаемый тип файла. Разрешены: JPG, PNG, PDF';
+                    document.getElementById('file_error').classList.remove('hidden');
+                    isValid = false;
+                } else {
+                    formData.append('file', file);
+                }
+            }
+            
+            if (!isValid) {
+                window.scrollTo(0, 0);
+                return;
+            }
+            
+            // Отправка данных на сервер
+            fetch('/feedback/submit', {
+                method: 'POST',
+                body: formData
+            })
+            .then(response => {
+                if (response.redirected) {
+                    window.location.href = response.url;
+                    return;
+                }
+                return response.json().then(data => ({status: response.status, data}));
+            })
+            .then(result => {
+                if (!result) return;
+                
+                if (result.status === 422 || result.status === 413 || result.status === 415) {
+                    serverError.textContent = result.data.detail || 'Ошибка при отправке формы';
+                    serverError.classList.remove('hidden');
+                    window.scrollTo(0, 0);
+                } else if (!result.status.ok) {
+                    throw new Error('Server error');
+                }
+            })
+            .catch(error => {
+                serverError.textContent = 
+                    'Произошла ошибка при отправке формы. Пожалуйста, попробуйте позже.';
+                serverError.classList.remove('hidden');
+                console.error('Ошибка:', error);
+                window.scrollTo(0, 0);
+            });
+        });
+        
+        // Валидация при вводе
+        document.querySelectorAll('input, textarea, select').forEach(input => {
+            input.addEventListener('input', function() {
+                this.classList.remove('invalid');
+                const errorElement = document.getElementById(`${this.id}_error`);
+                if (errorElement) errorElement.classList.add('hidden');
+                
+                // Специальная проверка для телефона
+                if (this.id === 'phone' && this.value) {
+                    if (!validatePhone(this.value)) {
+                        this.classList.add('invalid');
+                        document.getElementById('phone_error').classList.remove('hidden');
+                    }
+                }
+            });
+        });
+    </script>
+</body>
+</html>

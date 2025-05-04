@@ -1,0 +1,9 @@
+# Игнорировать папки Python
+__pycache__/
+.venv/
+.pytest_cache/
+
+# Игнорировать файлы внутри этих папок
+**/__pycache__/
+**/.venv/
+**/.pytest_cache/
