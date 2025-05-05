@@ -1,1 +1,119 @@
-this is empty readme
+# Feedback Handling System 🚀
+
+Веб-приложение для обработки обратной связи с клиентами, реализованное на FastAPI. Позволяет пользователям отправлять обращения через интуитивную веб-форму с поддержкой файловых вложений.
+
+[![FastAPI](https://img.shields.io/badge/FastAPI-009688?logo=fastapi&logoColor=white)](https://fastapi.tiangolo.com/)
+[![SQLModel](https://img.shields.io/badge/SQLModel-336791?logo=sqlalchemy&logoColor=white)](https://sqlmodel.tiangolo.com/)
+
+## Основные возможности ✨
+
+- 📋 4 типа обращений: предложение, проблема, жалоба, другое
+- 📎 Загрузка файлов (JPG, PNG, PDF до 5MB)
+- 🛡 Встроенная валидация данных (email, телефон, сообщение)
+- 📁 Автоматическое сохранение в SQLite базе
+- 📊 Логирование операций и обработка ошибок
+- 🧪 Полноценное тестовое покрытие
+
+## Структура проекта 📂
+project/
+├── src/ # Исходный код приложения
+│ ├── config/ ⚙️ Конфигурация БД
+│ │ ├── database/
+│ │ │ └── db_helper.py # Менеджер сессий БД
+│ ├── models/ 🧱 Модели данных
+│ │ └── feedback.py # Модель обратной связи
+│ ├── routes/ 🛣 API эндпоинты
+│ │ └── feedback.py # Роуты формы
+│ ├── services/ 🛠 Бизнес-логика
+│ │ └── feedback_service.py # Сервис обработки
+│ ├── static/ 🎨 CSS/JS файлы
+│ └── templates/ 📄 HTML шаблоны
+├── tests/ 🧪 Тесты
+│ └── first_test.py # Интеграционные тесты
+└── main.py 🚀 Точка входа
+
+
+## Установка и запуск ⚡️
+
+1. Клонировать репозиторий:
+```bash
+git clone https://github.com/yourusername/feedback-system.git
+cd feedback-system
+Установить зависимости:
+
+bash
+pip install -r requirements.txt
+Запустить приложение:
+
+bash
+uvicorn main:app --reload
+Приложение будет доступно по адресу: http://localhost:8000/feedback
+
+Настройка окружения ⚙️
+Основные параметры в src/config/database/settings_db.py:
+
+python
+class ConfigDataBase(BaseSettings):
+    SQLITE_DB_PATH: str = "src/app.db"  # Путь к базе данных
+    DB_ECHO_LOG: bool = False  # Логирование SQL запросов
+Использование API 📡
+Доступные эндпоинты:
+Метод	Путь	Описание
+GET	/feedback/	HTML форма обратной связи
+POST	/feedback/submit	Отправка обращения
+GET	/feedback/success	Страница успешной отправки
+Пример запроса:
+bash
+curl -X POST "http://localhost:8000/feedback/submit" \
+  -F "feedback_type=problem" \
+  -F "full_name=Иванов Иван" \
+  -F "email=test@example.com" \
+  -F "message=Тестовое сообщение" \
+  -F "file=@/path/to/file.pdf"
+Пример успешного ответа:
+http
+HTTP/303 See Other
+Location: /feedback/success
+Тестирование 🧪
+Запуск тестов:
+
+bash
+pytest tests/ -v
+Тесты покрывают:
+
+Валидацию полей формы
+
+Обработку файлов
+
+Крайние случаи входных данных
+
+Ошибки базы данных
+
+Тестовая статистика
+
+Безопасность 🔒
+Реализованные меры защиты:
+
+🔐 Экранирование HTML во всех полях ввода
+
+📏 Ограничение размера файлов (5MB)
+
+🛡 Валидация MIME-типов файлов
+
+📛 Автоматическое удаление файлов при ошибках
+
+📍 Защита от SQL-инъекций через параметризованные запросы
+
+Вклад в проект 🤝
+Приветствуются:
+
+🐞 Сообщения об ошибках в Issues
+
+📚 Улучшение документации
+
+🧪 Дополнительные тестовые сценарии
+
+🚀 Оптимизация производительности
+
+Лицензия 📄
+MIT License - подробности в файле LICENSE
