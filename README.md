@@ -53,7 +53,16 @@ project/
 
 создать виртуальную среду в проекте
 ```
+python -m venv .venv 
+```
+активировать её
+```
 .\.venv\Scripts\Activate.ps1
+```
+
+установить зависимости
+```
+pip install -r requirements.txt 
 ```
 запустить main.py
 ```
