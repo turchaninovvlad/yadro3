@@ -1,17 +1,16 @@
 <!DOCTYPE html>
-<html lang="en">
+<html lang="ru">
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Feedback Submitted</title>
-    <style>
-        body { font-family: Arial, sans-serif; max-width: 600px; margin: 0 auto; padding: 20px; text-align: center; }
-        .success-message { color: #4CAF50; font-size: 1.2em; margin: 20px 0; }
-    </style>
+    <title>Спасибо за обратную связь</title>
+    <link rel="stylesheet" href="{{ url_for('static', path='/css/feedback.css') }}">
 </head>
 <body>
-    <h1>Thank You!</h1>
-    <div class="success-message">Your feedback has been successfully submitted.</div>
-    <a href="/feedback">Submit another feedback</a>
+    <div class="feedback-success">
+        <h1>Спасибо!</h1>
+        <div class="success-message">Ваше обращение успешно отправлено.</div>
+        <a href="/feedback" class="return-link">Отправить новое обращение</a>
+    </div>
 </body>
 </html>
