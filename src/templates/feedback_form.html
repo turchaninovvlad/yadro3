@@ -75,7 +75,7 @@
 
     <script src="{{ url_for('static', path='/js/feedback.js') }}"></script>
     <script>
-        // Инициализация с данными из шаблона
+
         const feedbackData = {
             types: [
                 {% for type in feedback_types %}
@@ -85,7 +85,6 @@
             examples: {{ example_data|tojson|safe }}
         };
         
-        // Инициализация формы
         document.addEventListener('DOMContentLoaded', () => {
             FeedbackForm.init(feedbackData);
         });
