@@ -6,8 +6,6 @@ from src.routes.feedback import router as feedback_router
 from src.config.database.init_db import init_models
 
 app = FastAPI()
-
-# Настройка логирования
 logging.basicConfig(
     level=logging.INFO,
     format='%(asctime)s - %(name)s - %(levelname)s - %(message)s',
@@ -16,10 +14,8 @@ logging.basicConfig(
     ]
 )
 
-# Подключение статических файлов
 app.mount("/static", StaticFiles(directory="src/static"), name="static")
 
-# Роутинг
 app.include_router(feedback_router, prefix="/feedback", tags=["feedback"])
 
 @app.on_event("startup")
