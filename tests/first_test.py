@@ -8,7 +8,7 @@ import os
 from datetime import datetime
 import json
 
-# Базовые настройки
+
 BASE_URL = "http://localhost:8000"
 FEEDBACK_URL = f"{BASE_URL}/feedback/submit"
 TEST_FILE_DIR = Path("test_files")
@@ -16,7 +16,7 @@ TEST_FILE_DIR.mkdir(exist_ok=True)
 RESULTS_FILE = "test_results.txt"
 
 
-# Очистка и инициализация файлов результатов
+
 def init_results_files():
     with open(RESULTS_FILE, "w", encoding='utf-8') as f:
         f.write("Тестирование формы обратной связи\n")
@@ -25,7 +25,7 @@ def init_results_files():
     
 
 
-# Запись результата теста
+
 def write_test_result(test_name: str, status: str, error: str = ""):
     with open(RESULTS_FILE, "a", encoding='utf-8') as f:
         f.write(f"Тест: {test_name}\n")
@@ -34,7 +34,7 @@ def write_test_result(test_name: str, status: str, error: str = ""):
             f.write(f"Ошибка: {error}\n")
         f.write("-"*50 + "\n")
 
-# Запись ответа сервера
+
 def write_server_response(test_name: str, response: httpx.Response):
     try:
         response_data = {
@@ -51,21 +51,21 @@ def write_server_response(test_name: str, response: httpx.Response):
     except Exception as e:
         print(f"Ошибка при записи ответа сервера: {str(e)}")
 
-# Фикстура для клиента
+
 @pytest_asyncio.fixture
 async def async_client():
     async with httpx.AsyncClient() as client:
         yield client
         await client.aclose()
 
-# Вспомогательные функции
+
 def create_test_file(filename: str, size_kb: int = 5) -> str:
     filepath = TEST_FILE_DIR / filename
     with open(filepath, 'wb') as f:
         f.write(os.urandom(size_kb * 1024))
     return str(filepath)
 
-# Тестовые данные
+
 VALID_DATA = {
     "feedback_type": "problem",
     "full_name": "Иванов Иван Иванович",
@@ -75,14 +75,14 @@ VALID_DATA = {
     "order_number": "ORD-123456"
 }
 
-# Хук для сохранения информации о тестах
+
 @pytest.hookimpl(tryfirst=True, hookwrapper=True)
 def pytest_runtest_makereport(item, call):
     outcome = yield
     rep = outcome.get_result()
     setattr(item, "rep_" + rep.when, rep)
 
-# Фикстура для записи результатов
+
 @pytest.fixture(autouse=True)
 def record_test_result(request):
     yield
@@ -91,7 +91,6 @@ def record_test_result(request):
     error = str(request.node.rep_call.longrepr) if hasattr(request.node, 'rep_call') and request.node.rep_call.failed else ""
     write_test_result(test_name, status, error)
 
-# Вывод статистики после всех тестов
 def pytest_sessionfinish(session, exitstatus):
     passed = sum(1 for result in session.items if hasattr(result, 'rep_call') and result.rep_call.passed)
     total = len(session.items)
@@ -105,7 +104,7 @@ def pytest_sessionfinish(session, exitstatus):
     print(f"ИТОГО: {passed}/{total} тестов пройдено успешно")
     print(f"Процент успешных тестов: {passed/total*100:.2f}%")
 
-# Инициализация файлов результатов
+
 init_results_files()
 
 async def make_request_and_log(async_client, test_name, data, files=None):
@@ -174,11 +173,11 @@ async def test_email_validation(async_client, email):
 # 3. Тесты на валидацию телефона
 @pytest.mark.asyncio
 @pytest.mark.parametrize("phone", [
-    "123",  # Слишком короткий
-    "+7 999 123-45-67 ext 1234",  # Слишком длинный
-    "abc123",  # Неверные символы
-    " " * 21,  # Слишком длинный (пробелы)
-    "8" * 21,  # Слишком длинный (цифры)
+    "123", 
+    "+7 999 123-45-67 ext 1234", 
+    "abc123", 
+    " " * 21, 
+    "8" * 21,  
 ])
 async def test_phone_validation(async_client, phone):
     test_data = VALID_DATA.copy()
@@ -199,10 +198,10 @@ async def test_phone_validation(async_client, phone):
 # 4. Тесты на валидацию сообщения
 @pytest.mark.asyncio
 @pytest.mark.parametrize("message", [
-    "short",  # Слишком короткое
-    "x" * 1001,  # Слишком длинное
-    "",  # Пустое
-    "   ",  # Только пробелы
+    "short",  
+    "x" * 1001,
+    "",  
+    "   ",  
 ])
 async def test_message_validation(async_client, message):
     test_data = VALID_DATA.copy()
@@ -222,9 +221,9 @@ async def test_message_validation(async_client, message):
 # 5. Тесты на валидацию файлов
 @pytest.mark.asyncio
 @pytest.mark.parametrize("file_type,size_kb,expected_error", [
-    ("test.jpg", 5120, None),  # Успешный случай
-    ("test.jpg", 5121, "Файл слишком большой"),  # Ожидаем ошибку размера
-    ("test.exe", 100, "Неподдерживаемый тип файла"),  # Ожидаем ошибку типа
+    ("test.jpg", 5120, None),  
+    ("test.jpg", 5121, "Файл слишком большой"), 
+    ("test.exe", 100, "Неподдерживаемый тип файла"),
     ("test.txt", 100, "Неподдерживаемый тип файла"),
     ("test.png", 5120, None),
     ("test.pdf", 5120, None),
@@ -243,12 +242,11 @@ async def test_file_validation(async_client, file_type, size_kb, expected_error)
         )
     
     if expected_error:
-        assert response.status_code in [413, 415]  # Только ошибки валидации файла
+        assert response.status_code in [413, 415] 
         response_data = response.json()
         assert "detail" in response_data
         assert expected_error in str(response_data["detail"])
     else:
-        # Проверяем либо редирект (303), либо ошибку БД (500)
         if response.status_code == 500:
             response_data = response.json()
             assert "Ошибка при сохранении данных" in str(response_data.get("detail", ""))
@@ -271,7 +269,6 @@ async def test_successful_submission(async_client):
             files
         )
     
-    # Проверяем либо редирект (303), либо ошибку БД (500)
     if response.status_code == 500:
         response_data = response.json()
         assert "Ошибка при сохранении данных" in str(response_data.get("detail", ""))
@@ -279,7 +276,6 @@ async def test_successful_submission(async_client):
         assert response.status_code == 303
         assert "/feedback/success" in response.headers.get("location", "")
 
-# Очистка тестовых файлов
 @pytest.fixture(scope="session", autouse=True)
 def cleanup(request):
     def remove_test_files():
