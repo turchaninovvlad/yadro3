@@ -72,7 +72,8 @@ python main.py
 Доступные эндпоинты:
 
 <li>
-  GET	/feedback/	HTML форма обратной связи
+  
+  * GET	/feedback/	HTML форма обратной связи
 
   * POST	/feedback/submit	Отправка обращения
 
