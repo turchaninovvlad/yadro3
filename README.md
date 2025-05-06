@@ -18,6 +18,7 @@ project/
 ├── src/ # Исходный код приложения
 
 │ ├── config/  # Конфигурация БД
+
 │ │ ├── database/
 
 │ │ │ └── db_helper.py # Менеджер сессий БД
@@ -70,13 +71,13 @@ python main.py
 ## Использование API 
 Доступные эндпоинты:
 
+<li>
+* GET	/feedback/	HTML форма обратной связи
 
-GET	/feedback/	HTML форма обратной связи
+* POST	/feedback/submit	Отправка обращения
 
-POST	/feedback/submit	Отправка обращения
-
-GET	/feedback/success	Страница успешной отправки
-
+* GET	/feedback/success	Страница успешной отправки
+</li>
 Тестирование 
 Запуск тестов:
 ```
