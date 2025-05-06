@@ -15,20 +15,20 @@
 
 ## Структура проекта 
 ```
-project/
-├── src/                       # Исходный код приложения
-│ ├── config/                  # Конфигурация БД
-│ │ ├── database/
+project
+├── src                        # Исходный код приложения
+│ ├── config                   # Конфигурация БД
+│ │ ├── database 
 │ │     └── db_helper.py       # Менеджер сессий БД
-│ ├── models/                  # Модели данных
+│ ├── models                   # Модели данных
 │ │   └── feedback.py          # Модель обратной связи
-│ ├── routes/                  # API эндпоинты
+│ ├── routes                   # API эндпоинты
 │ │   └── feedback.py          # Роуты формы
-│ ├── services/                # Бизнес-логика
+│ ├── services                 # Бизнес-логика
 │ │   └── feedback_service.py  # Сервис обработки
-│ ├── static/                  # CSS/JS, файлы
-│ └── templates/               # HTML шаблоны
-├── tests/                     # Тесты
+│ ├── static                   # CSS/JS, файлы
+│ └── templates                # HTML шаблоны
+├── tests                      # Тесты
 │   └── first_test.py          # Интеграционные тесты
 └── main.py                    # Точка входа
 ```
