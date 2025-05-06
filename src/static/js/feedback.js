@@ -1,15 +1,11 @@
-/**
- * Feedback Form Module
- * Handles form validation and submission
- */
 const FeedbackForm = (() => {
-    // Private variables
+
     let config = {
         validTypes: [],
         maxMessageLength: 1000
     };
 
-    // DOM Elements
+
     const elements = {
         form: null,
         feedbackType: null,
@@ -22,7 +18,7 @@ const FeedbackForm = (() => {
         serverError: null
     };
 
-    // Error messages
+
     const errorMessages = {
         feedbackType: 'Пожалуйста, выберите тип обращения',
         fullName: 'ФИО должно быть от 2 до 100 символов',
@@ -36,7 +32,7 @@ const FeedbackForm = (() => {
         server: 'Произошла ошибка при отправке формы. Пожалуйста, попробуйте позже.'
     };
 
-    // Private methods
+
     const escapeHtml = (unsafe) => {
         return unsafe
             .replace(/&/g, "&amp;")
@@ -68,7 +64,6 @@ const FeedbackForm = (() => {
         let isValid = true;
         const formData = new FormData();
 
-        // Validate feedback type
         if (!config.validTypes.includes(elements.feedbackType.value)) {
             showError(elements.feedbackType, elements.feedbackTypeError, errorMessages.feedbackType);
             isValid = false;
@@ -77,7 +72,6 @@ const FeedbackForm = (() => {
             hideError(elements.feedbackType, elements.feedbackTypeError);
         }
 
-        // Validate full name
         const fullName = escapeHtml(elements.fullName.value.trim());
         if (fullName.length < 2 || fullName.length > 100) {
             showError(elements.fullName, elements.fullNameError, errorMessages.fullName);
@@ -87,7 +81,6 @@ const FeedbackForm = (() => {
             hideError(elements.fullName, elements.fullNameError);
         }
 
-        // Validate email
         const email = escapeHtml(elements.email.value.trim());
         const emailRegex = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
         if (!emailRegex.test(email)) {
@@ -98,7 +91,6 @@ const FeedbackForm = (() => {
             hideError(elements.email, elements.emailError);
         }
 
-        // Validate phone
         const phone = escapeHtml(elements.phone.value.trim());
         if (phone && !validatePhone(phone)) {
             showError(elements.phone, elements.phoneError, errorMessages.phone);
@@ -108,7 +100,6 @@ const FeedbackForm = (() => {
             hideError(elements.phone, elements.phoneError);
         }
 
-        // Validate message
         const message = escapeHtml(elements.message.value.trim());
         if (message.length < 10 || message.length > config.maxMessageLength) {
             showError(elements.message, elements.messageError, errorMessages.message);
@@ -118,7 +109,6 @@ const FeedbackForm = (() => {
             hideError(elements.message, elements.messageError);
         }
 
-        // Validate file
         if (elements.fileInput.files.length > 0) {
             const file = elements.fileInput.files[0];
             const validTypes = ['image/jpeg', 'image/png', 'application/pdf'];
@@ -179,13 +169,11 @@ const FeedbackForm = (() => {
     const initEventListeners = () => {
         elements.form.addEventListener('submit', handleSubmit);
         
-        // Real-time validation
         elements.message.addEventListener('input', () => {
             const remaining = config.maxMessageLength - elements.message.value.length;
             elements.charsLeft.textContent = remaining;
         });
 
-        // Clear errors on input
         document.querySelectorAll('input, textarea, select').forEach(input => {
             input.addEventListener('input', function() {
                 const errorElement = document.getElementById(`${this.id}_error`);
@@ -196,13 +184,10 @@ const FeedbackForm = (() => {
         });
     };
 
-    // Public methods
     return {
         init: (data) => {
-            // Set configuration
             config.validTypes = data.types.map(type => type.value);
             
-            // Cache DOM elements
             elements.form = document.getElementById('feedbackForm');
             elements.feedbackType = document.getElementById('feedback_type');
             elements.fullName = document.getElementById('full_name');
@@ -213,7 +198,6 @@ const FeedbackForm = (() => {
             elements.charsLeft = document.getElementById('charsLeft');
             elements.serverError = document.getElementById('serverError');
             
-            // Error elements
             elements.feedbackTypeError = document.getElementById('feedback_type_error');
             elements.fullNameError = document.getElementById('full_name_error');
             elements.emailError = document.getElementById('email_error');
@@ -221,7 +205,6 @@ const FeedbackForm = (() => {
             elements.messageError = document.getElementById('message_error');
             elements.fileError = document.getElementById('file_error');
             
-            // Set initial error messages
             elements.feedbackTypeError.textContent = errorMessages.feedbackType;
             elements.fullNameError.textContent = errorMessages.fullName;
             elements.emailError.textContent = errorMessages.email;
