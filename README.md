@@ -74,9 +74,9 @@ python main.py
 <li>
   GET	/feedback/	HTML форма обратной связи
 
-* POST	/feedback/submit	Отправка обращения
+  POST	/feedback/submit	Отправка обращения
 
-* GET	/feedback/success	Страница успешной отправки
+  GET	/feedback/success	Страница успешной отправки
 </li>
 Тестирование 
 Запуск тестов:
