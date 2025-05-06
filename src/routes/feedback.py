@@ -1,4 +1,4 @@
-from typing import Optional, Annotated  # Добавляем импорт Optional
+from typing import Optional, Annotated 
 from fastapi import APIRouter, Depends, File, UploadFile, Form, HTTPException, Request, status
 from fastapi.templating import Jinja2Templates
 from fastapi.responses import HTMLResponse, RedirectResponse
@@ -55,7 +55,6 @@ async def validate_file(file: Optional[UploadFile]) -> Optional[str]:
     if not file or not file.filename:
         return None
 
-    # Проверка типа файла по расширению (более надежно, чем content_type)
     file_ext = file.filename.split('.')[-1].lower()
     if file_ext not in ['jpg', 'jpeg', 'png', 'pdf']:
         raise HTTPException(
@@ -96,7 +95,6 @@ async def submit_feedback(
     file: Optional[UploadFile] = File(None),
     feedback_service: FeedbackService = Depends(),
 ):
-    # Проверка типа обращения
     try:
         validated_type = validate_feedback_type(feedback_type)
     except HTTPException as e:
@@ -106,7 +104,6 @@ async def submit_feedback(
             content={"detail": e.detail}
         )
 
-    # Валидация файла
     try:
         file_path = await validate_file(file)
     except HTTPException as e:
@@ -116,7 +113,6 @@ async def submit_feedback(
             content={"detail": e.detail}
         )
 
-    # Валидация данных через Pydantic
     try:
         feedback_data = FeedbackCreate(
             feedback_type=validated_type,
@@ -128,7 +124,6 @@ async def submit_feedback(
         ).dict()
     except ValueError as e:
         logger.error(f"Ошибка валидации данных: {str(e)}")
-        # Удаляем файл, если он был загружен до ошибки валидации
         if file_path:
             try:
                 (Path("src") / file_path).unlink()
@@ -140,15 +135,12 @@ async def submit_feedback(
             content={"detail": str(e)}
         )
 
-    # Сохранение в базу
     try:
         feedback = await feedback_service.create_feedback(feedback_data, file_path)
         logger.info(f"Обращение успешно создано: ID {feedback.id}")
-        # Исправляем возвращаемый ответ
         return RedirectResponse(url="/feedback/success", status_code=status.HTTP_303_SEE_OTHER)
     except Exception as e:
         logger.error(f"Ошибка при сохранении в базу данных: {str(e)}", exc_info=True)
-        # Удаляем файл, если он был загружен, но произошла ошибка БД
         if file_path:
             try:
                 (Path("src") / file_path).unlink()
@@ -161,7 +153,6 @@ async def submit_feedback(
         )
     except Exception as e:
         logger.error(f"Ошибка при сохранении в базу данных: {str(e)}", exc_info=True)
-        # Удаляем файл, если он был загружен, но произошла ошибка БД
         if file_path:
             try:
                 (Path("src") / file_path).unlink()
