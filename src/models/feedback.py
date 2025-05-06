@@ -23,12 +23,9 @@ class FeedbackBase(BaseModel):
     def validate_phone(cls, v):
         if v is None:
             return v
-        # Экранирование HTML
         v = escape(v)
-        # Проверка формата телефона
         if not re.match(r'^\+?[\d\s\-()]+$', v):
             raise ValueError('Некорректный формат телефона')
-        # Проверка длины (5-20 символов)
         cleaned = re.sub(r'[^\d+]', '', v)
         if len(cleaned) < 5 or len(cleaned) > 15:
             raise ValueError('Телефон должен содержать от 5 до 15 цифр')
