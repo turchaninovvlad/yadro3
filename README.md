@@ -20,15 +20,15 @@ project
 │ ├── config                   # Конфигурация БД
 │ │ └── database 
 │ │     └── db_helper.py       # Менеджер сессий БД
-│ ├── models                   # Модели данных
+│ ├── models                   
 │ │   └── feedback.py          # Модель обратной связи
-│ ├── routes                   # API эндпоинты
+│ ├── routes                   
 │ │   └── feedback.py          # Роуты формы
-│ ├── services                 # Бизнес-логика
+│ ├── services                 
 │ │   └── feedback_service.py  # Сервис обработки
 │ ├── static                   # CSS/JS, файлы
 │ └── templates                # HTML шаблоны
-├── tests                      # Тесты
+├── tests                      
 │   └── first_test.py          # Интеграционные тесты
 └── main.py                    # Точка входа
 ```
