@@ -22,8 +22,7 @@ class FeedbackService:
                 """)
                 
                 logger.debug(f"Создание обращения с данными: {feedback_data}")
-                
-                # Добавляем текущую дату и время
+
                 current_time = datetime.now()
                 
                 result = await session.execute(
