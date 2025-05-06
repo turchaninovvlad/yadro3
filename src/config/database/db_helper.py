@@ -20,7 +20,6 @@ class DatabaseHelper:
         )
 
     async def create_db_and_tables(self):
-        """Example commentary test1"""
         async with self.engine.begin() as conn:
             await conn.run_sync(SQLModel.metadata.create_all)
 
